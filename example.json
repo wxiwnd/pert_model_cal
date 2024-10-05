@@ -1,0 +1,16 @@
+[
+  {"label":"A","name":"A","predecessors":[],"optimistic_estimate":1.0,"most_likely_estimate":2.0,"pessimistic_estimate":3.0},
+  {"label":"B","name":"B","predecessors":["A"],"optimistic_estimate":2.0,"most_likely_estimate":3.5,"pessimistic_estimate":8.0},
+  {"label":"C","name":"C","predecessors":["B"],"optimistic_estimate":6.0,"most_likely_estimate":9.0,"pessimistic_estimate":18.0},
+  {"label":"D","name":"A","predecessors":["C"],"optimistic_estimate":4.0,"most_likely_estimate":5.5,"pessimistic_estimate":10.0},
+  {"label":"E","name":"A","predecessors":["C"],"optimistic_estimate":1.0,"most_likely_estimate":4.5,"pessimistic_estimate":5.0},
+  {"label":"F","name":"A","predecessors":["E"],"optimistic_estimate":4.0,"most_likely_estimate":4.0,"pessimistic_estimate":10.0},
+  {"label":"G","name":"A","predecessors":["D"],"optimistic_estimate":5.0,"most_likely_estimate":6.5,"pessimistic_estimate":11.0},
+  {"label":"H","name":"A","predecessors":["E","G"],"optimistic_estimate":5.0,"most_likely_estimate":8.0,"pessimistic_estimate":17.0},
+  {"label":"I","name":"A","predecessors":["C"],"optimistic_estimate":3.0,"most_likely_estimate":7.5,"pessimistic_estimate":9.0},
+  {"label":"J","name":"A","predecessors":["F","I"],"optimistic_estimate":3.0,"most_likely_estimate":9.0,"pessimistic_estimate":9.0},
+  {"label":"K","name":"A","predecessors":["J"],"optimistic_estimate":4.0,"most_likely_estimate":4.0,"pessimistic_estimate":4.0},
+  {"label":"L","name":"A","predecessors":["J"],"optimistic_estimate":1.0,"most_likely_estimate":5.5,"pessimistic_estimate":7.0},
+  {"label":"M","name":"A","predecessors":["H"],"optimistic_estimate":1.0,"most_likely_estimate":2.0,"pessimistic_estimate":3.0},
+  {"label":"N","name":"A","predecessors":["K","L"],"optimistic_estimate":5.0,"most_likely_estimate":5.5,"pessimistic_estimate":9.0}
+]
