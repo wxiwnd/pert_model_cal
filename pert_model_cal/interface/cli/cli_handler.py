@@ -82,14 +82,22 @@ class CLIHandler:
 
         if cls.show_table:
             console = Console()
-            table = Table(show_header=True)
+            tasks_table = Table(show_header=True)
 
             for column in tasks_df.columns:
-                table.add_column(column)
+                tasks_table.add_column(column)
             for _, row in tasks_df.iterrows():
-                table.add_row(*map(str, row))
+                tasks_table.add_row(*map(str, row))
 
-            console.print(table)
+            summary_table = Table(show_header=True)
+
+            for column in summary_df.columns:
+                summary_table.add_column(column)
+            for _, row in summary_df.iterrows():
+                summary_table.add_row(*map(str, row))
+
+            console.print(tasks_table)
+            console.print(summary_table)
 
     @classmethod
     def generate_diagram(cls):
