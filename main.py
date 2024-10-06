@@ -1,10 +1,18 @@
 import click
+import uvicorn
 from rich.console import Console
 from rich.table import Table
 from pert_model_cal.interface.cli.cli_handler import CLIHandler
+from pert_model_cal.server import app
 
 
-@click.command()
+@click.group()
+def cli():
+    """Main CLI Group"""
+    pass
+
+
+@click.command("calculate")
 @click.argument("json_path", type=click.Path(exists=True))
 @click.option(
     "--show-diagram", is_flag=True, default=False, help="Show the PERT diagram"
@@ -24,7 +32,7 @@ from pert_model_cal.interface.cli.cli_handler import CLIHandler
     default=None,
     help="Calculate the probability of finishing tasks less than the expected time",
 )
-def main(json_path, show_diagram, show_table, table_format, probability):
+def calculate(json_path, show_diagram, show_table, table_format, probability):
     """
     CLI to handle PERT calculations.
     """
@@ -64,5 +72,14 @@ def main(json_path, show_diagram, show_table, table_format, probability):
             click.echo("Diagram generation is not yet implemented.")
 
 
+@click.command("start-server")
+@click.option("--host", default="127.0.0.1", help="Host to run server on")
+@click.option("--port", default=8080, help="Port to run server on")
+def start_server(host, port):
+    uvicorn.run(app, host=host, port=port)
+
+
 if __name__ == "__main__":
-    main()
+    cli.add_command(calculate)
+    cli.add_command(start_server)
+    cli()
