@@ -22,9 +22,8 @@ def cli():
 )
 @click.option(
     "--table-format",
-    type=click.Choice(["csv", "excel"]),
-    default="csv",
-    help="Output format of the table (csv or excel)",
+    type=click.STRING,
+    help="Output format of the table (comma-separated list of formats, e.g., 'csv,excel')",
 )
 @click.option(
     "--probability",
@@ -51,12 +50,14 @@ def calculate(json_path, show_diagram, show_table, table_format, probability):
         config_table.add_row("Probability less than", str(probability))
 
     console.print(config_table)
+    table_formats = table_format.split(",") if table_format else ["csv"]
 
+    print(table_format)
     CLIHandler.init(
         json_path=json_path,
         show_diagram=show_diagram,
         show_table=show_table,
-        table_format=table_format,
+        table_format=table_formats,
     )
     CLIHandler.calculate_pert(time=probability)
 
