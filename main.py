@@ -18,7 +18,7 @@ def cli():
     "--show-diagram", is_flag=True, default=False, help="Show the PERT diagram"
 )
 @click.option(
-    "--show-table", is_flag=True, default=True, help="Show the task table and summary"
+    "--show-table", is_flag=True, default=False, help="Show the task table and summary"
 )
 @click.option(
     "--table-format",
