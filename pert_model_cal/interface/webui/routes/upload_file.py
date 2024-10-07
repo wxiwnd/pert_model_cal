@@ -1,28 +1,37 @@
-from fastapi import APIRouter, File, UploadFile, HTTPException
-from pathlib import Path
-from datetime import datetime
-import shutil
-
+from fastapi import APIRouter, UploadFile, File, HTTPException
 from ...functions import IOUtils
+import time
+import json
 
 router = APIRouter(redirect_slashes=False)
-
 RESULT_DIR = IOUtils.create_dir("cache")
 
 
 @router.post("/api/uploadfile")
 async def upload_file(file: UploadFile = File(...)):
-    file_extension = Path(file.filename).suffix
+    timestamp = int(time.time())
+    config_name = f"config_{timestamp}"
+    file_location = RESULT_DIR / f"{config_name}.json"
 
-    if file_extension.lower() != ".json":
-        raise HTTPException(status_code=400, detail="Only JSON files are allowed")
+    try:
+        with open(file_location, "wb") as f:
+            f.write(await file.read())
 
-    timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
-    file_name = f"{timestamp}{file_extension}"
+        config_info = {"name": config_name, "timestamp": timestamp}
 
-    file_location = RESULT_DIR / file_name
+        # use config_info.json to store index
+        config_info_location = RESULT_DIR / "config_info.json"
+        if config_info_location.exists():
+            with open(config_info_location, "r") as f:
+                config_data = json.load(f)
+        else:
+            config_data = []
 
-    with open(file_location, "wb") as buffer:
-        shutil.copyfileobj(file.file, buffer)
+        config_data.append(config_info)
 
-    return {"info": "file saved successfully"}
+        with open(config_info_location, "w") as f:
+            json.dump(config_data, f)
+
+        return {"message": "File uploaded successfully"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
