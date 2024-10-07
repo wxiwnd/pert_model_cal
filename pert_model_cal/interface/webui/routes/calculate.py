@@ -9,7 +9,8 @@ RESULT_DIR = IOUtils.create_dir("cache")
 async def calculate(request: Request):
     body = await request.json()
     config_name: str = body.get("config_name")
-    expected_time: int | None = int(body.get("expected_time"))
+    expected_time = body.get("expected_time")
+    expected_time = int(expected_time) if expected_time else None
     if not config_name:
         raise HTTPException(status_code=400, detail="config_name is required")
     try:
