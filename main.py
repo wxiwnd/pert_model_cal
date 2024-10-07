@@ -52,7 +52,6 @@ def calculate(json_path, show_diagram, show_table, table_format, probability):
     console.print(config_table)
     table_formats = table_format.split(",") if table_format else ["csv"]
 
-    print(table_format)
     CLIHandler.init(
         json_path=json_path,
         show_diagram=show_diagram,
