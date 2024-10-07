@@ -1,16 +1,24 @@
-from fastapi import APIRouter, Request, HTTPException
+from fastapi import APIRouter, HTTPException, Request
 from ...functions import IOUtils
+import json
 
 router = APIRouter(redirect_slashes=False)
-
 RESULT_DIR = IOUtils.create_dir("cache")
 
 
 @router.get("/api/list_configs")
 async def list_configs():
-    config_files = list(RESULT_DIR.glob("*.json"))
-    config_list = [str(file.name) for file in config_files]
-    return {"configs": config_list}
+    config_info_location = RESULT_DIR / "config_info.json"
+
+    try:
+        if config_info_location.exists():
+            with open(config_info_location, "r") as f:
+                config_data = json.load(f)
+            return {"configs": config_data}
+        else:
+            return {"configs": []}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 @router.post("/api/list_details")
@@ -23,28 +31,26 @@ async def list_details(request: Request):
     json_file = RESULT_DIR / f"{config_name}.json"
     csv_file_summary = RESULT_DIR / f"{config_name}_summary.csv"
     csv_file_tasks = RESULT_DIR / f"{config_name}_tasks.csv"
-    excel_file_summary = RESULT_DIR / f"{config_name}_summary.xlsx"
-    excel_file_tasks = RESULT_DIR / f"{config_name}_tasks.xlsx"
+    # excel_file_summary = RESULT_DIR / f"{config_name}_summary.xlsx"
+    # excel_file_tasks = RESULT_DIR / f"{config_name}_tasks.xlsx"
 
-    if not json_file.exists():
-        raise HTTPException(status_code=404, detail="JSON file not found")
-    if not csv_file_summary.exists():
-        raise HTTPException(status_code=404, detail="CSV summary file not found")
-    if not csv_file_tasks.exists():
-        raise HTTPException(status_code=404, detail="CSV tasks file not found")
-    if not excel_file_summary.exists():
-        raise HTTPException(status_code=404, detail="Excel summary file not found")
-    if not excel_file_tasks.exists():
-        raise HTTPException(status_code=404, detail="Excel tasks file not found")
+    if json_file.exists():
+        with open(json_file, "r") as f:
+            json_content = f.read()
+    else:
+        json_content = None
 
-    with open(json_file, "r") as f:
-        json_content = f.read()
+    if csv_file_tasks.exists():
+        with open(csv_file_tasks, "r") as f:
+            csv_tasks_content = f.read()
+    else:
+        csv_tasks_content = None
 
-    with open(csv_file_summary, "r") as f:
-        csv_summary_content = f.read()
-
-    with open(csv_file_tasks, "r") as f:
-        csv_tasks_content = f.read()
+    if csv_file_summary.exists():
+        with open(csv_file_summary, "r") as f:
+            csv_summary_content = f.read()
+    else:
+        csv_summary_content = None
 
     return {
         "json_content": json_content,
