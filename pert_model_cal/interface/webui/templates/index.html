@@ -97,7 +97,7 @@
                     success: function(data) {
                         var details = '<h3>Details</h3>';
 
-                        details += '<h4>Summary Info</h4>';
+                        details += '<h4>Summary</h4>';
                         details += '<table class="table table-striped" id="csv-summary-table"></table>';
 
                         details += '<h4>Tasks Info</h4>';
@@ -164,7 +164,16 @@
                         contentType: 'application/json',
                         data: JSON.stringify({ config_name: configName, expected_time: expectedTime }),
                         success: function(data) {
-                            $('#result').html('<pre>' + JSON.stringify(data, null, 2) + '</pre>');
+                            // Check if data is valid before displaying
+                            if (data) {
+                                // Convert Expected Probability to percentage
+                                if (data.ExpectedProbability !== undefined) {
+                                    data.ExpectedProbability = (data.ExpectedProbability * 100).toFixed(2) + '%';
+                                }
+                                $('#result').html('<pre>' + JSON.stringify(data, null, 2) + '</pre>');
+                            } else {
+                                $('#result').html('<p>Calculation Process finished successfully.</p><p>Please click "Show Details" to get the result.</p>');
+                            }
                         },
                         error: function(jqXHR, textStatus, errorThrown) {
                             alert('PERT calculation failed: ' + errorThrown);
