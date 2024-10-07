@@ -3,11 +3,11 @@ from pathlib import Path
 from datetime import datetime
 import shutil
 
+from ...functions import IOUtils
+
 router = APIRouter(redirect_slashes=False)
 
-RESULT_DIR = Path("cache")
-if not RESULT_DIR.exists():
-    RESULT_DIR.mkdir()
+RESULT_DIR = IOUtils.create_dir("cache")
 
 
 @router.post("/uploadfile")
