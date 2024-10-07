@@ -12,7 +12,7 @@ class CLIHandler:
     pert_result: PERTResult
     show_diagram: bool
     show_table: bool
-    table_format: str
+    table_format: list[str]
     result_dir: Path
 
     @classmethod
@@ -21,7 +21,7 @@ class CLIHandler:
         json_path: str,
         show_diagram: bool = True,
         show_table: bool = True,
-        table_format="csv",
+        table_format: list[str] = ["csv"],
     ):
         cls.show_diagram = show_diagram
         cls.show_table = show_table

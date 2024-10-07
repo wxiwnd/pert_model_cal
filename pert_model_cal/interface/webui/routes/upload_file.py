@@ -10,7 +10,7 @@ router = APIRouter(redirect_slashes=False)
 RESULT_DIR = IOUtils.create_dir("cache")
 
 
-@router.post("/uploadfile")
+@router.post("/api/uploadfile")
 async def upload_file(file: UploadFile = File(...)):
     file_extension = Path(file.filename).suffix
 

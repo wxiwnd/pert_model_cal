@@ -5,6 +5,7 @@ from rich.table import Table
 from pathlib import Path
 from ..core.input_parser import InputParser
 from ..core.model.output import PERTResult
+from ..core.pert_calculator import PERT
 
 
 class IOUtils:
@@ -30,7 +31,11 @@ class IOUtils:
 
     @staticmethod
     def generate_table(
-        pert_result: PERTResult, table_format: str, show_table: bool, save_path: Path
+        pert_result: PERTResult,
+        table_format: list[str],
+        save_path: Path,
+        show_table: bool = False,
+        config_name: str | None = None,
     ) -> tuple[pd.DataFrame, pd.DataFrame]:
         tasks_data = []
         for task in pert_result.tasks:
@@ -55,15 +60,23 @@ class IOUtils:
         summary_df = pd.DataFrame(summary_data)
 
         # save the file
-        if table_format == "csv":
-            tasks_save_path = save_path / "tasks.csv"
-            summary_save_path = save_path / "summary.csv"
+        if "csv" in table_format:
+            tasks_save_path = save_path / (
+                f"{config_name}_tasks.csv" if config_name else "task.csv"
+            )
+            summary_save_path = save_path / (
+                f"{config_name}_summary.csv" if config_name else "summary.csv"
+            )
             tasks_df.to_csv(tasks_save_path, index=False)
             summary_df.to_csv(summary_save_path, index=False)
 
-        elif table_format == "excel":
-            tasks_save_path = save_path / "tasks.xlsx"
-            summary_save_path = save_path / "summary.xlsx"
+        if "excel" in table_format:
+            tasks_save_path = save_path / (
+                f"{config_name}_tasks.xlsx" if config_name else "task.xlsx"
+            )
+            summary_save_path = save_path / (
+                f"{config_name}_summary.xlsx" if config_name else "summary.xlsx"
+            )
             tasks_df.to_excel(tasks_save_path, index=False)
             summary_df.to_excel(summary_save_path, index=False)
 
@@ -87,3 +100,18 @@ class IOUtils:
             console.print(summary_table)
 
         return (tasks_df, summary_df)
+
+    @staticmethod
+    def calculate_pert(
+        config_name: Path | str, time: int | float | None = None
+    ) -> PERTResult:
+        result_dir = IOUtils.create_dir("cache")
+        if not isinstance(config_name, Path):
+            config_name = Path(config_name)
+        file_location = result_dir / config_name
+        if not file_location.exists():
+            raise FileNotFoundError(f"Config file {config_name}.json not found")
+
+        tasks = IOUtils.load_tasks_from_json(file_location)
+        pert = PERT(tasks)
+        return pert.calculate_pert(time=time)
