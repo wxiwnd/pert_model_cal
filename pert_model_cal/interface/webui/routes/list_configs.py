@@ -31,8 +31,7 @@ async def list_details(request: Request):
     json_file = RESULT_DIR / f"{config_name}.json"
     csv_file_summary = RESULT_DIR / f"{config_name}_summary.csv"
     csv_file_tasks = RESULT_DIR / f"{config_name}_tasks.csv"
-    # excel_file_summary = RESULT_DIR / f"{config_name}_summary.xlsx"
-    # excel_file_tasks = RESULT_DIR / f"{config_name}_tasks.xlsx"
+    svg_graph_file = RESULT_DIR / f"{config_name}_graph.svg"
 
     if json_file.exists():
         with open(json_file, "r") as f:
@@ -52,8 +51,15 @@ async def list_details(request: Request):
     else:
         csv_summary_content = None
 
+    if svg_graph_file.exists():
+        with open(svg_graph_file, "r") as f:
+            svg_graph_content = f.read()
+    else:
+        svg_graph_content = None
+
     return {
         "json_content": json_content,
         "csv_summary_content": csv_summary_content,
         "csv_tasks_content": csv_tasks_content,
+        "svg_graph_content": svg_graph_content,
     }

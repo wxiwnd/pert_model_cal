@@ -23,6 +23,9 @@ async def calculate(request: Request):
             save_path=RESULT_DIR,
             config_name=config_name,
         )
+        IOUtils.generate_graph_svg(
+            pert_result=pert_result, save_path=RESULT_DIR, config_name=config_name
+        )
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

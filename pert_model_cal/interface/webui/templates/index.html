@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,6 +9,7 @@
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
 </head>
+
 <body>
     <div class="container">
         <h1 class="mt-5">PERT Calculator</h1>
@@ -32,16 +34,16 @@
     </div>
 
     <script>
-        $(document).ready(function() {
+        $(document).ready(function () {
             // Load config list
             function loadConfigList() {
                 $.ajax({
                     url: '/api/list_configs',
                     type: 'GET',
-                    success: function(data) {
+                    success: function (data) {
                         var configList = '<table class="table table-striped">';
                         configList += '<thead><tr><th>Name</th><th>Timestamp</th><th>Actions</th></tr></thead><tbody>';
-                        data.configs.forEach(function(config) {
+                        data.configs.forEach(function (config) {
                             configList += '<tr>';
                             configList += '<td>' + config.name + '</td>';
                             configList += '<td>' + new Date(config.timestamp * 1000).toLocaleString() + '</td>';
@@ -54,7 +56,7 @@
                         configList += '</tbody></table>';
                         $('#config-list').html(configList);
                     },
-                    error: function(jqXHR, textStatus, errorThrown) {
+                    error: function (jqXHR, textStatus, errorThrown) {
                         alert('Failed to list configs: ' + errorThrown);
                     }
                 });
@@ -64,7 +66,7 @@
             loadConfigList();
 
             // File upload form submit event
-            $('#upload-form').on('submit', function(event) {
+            $('#upload-form').on('submit', function (event) {
                 event.preventDefault();
                 var formData = new FormData();
                 formData.append('file', $('#file')[0].files[0]);
@@ -75,48 +77,55 @@
                     data: formData,
                     processData: false,
                     contentType: false,
-                    success: function(data) {
+                    success: function (data) {
                         alert('File uploaded successfully');
                         // Refresh config list after successful upload
                         loadConfigList();
                     },
-                    error: function(jqXHR, textStatus, errorThrown) {
+                    error: function (jqXHR, textStatus, errorThrown) {
                         alert('File upload failed: ' + errorThrown);
                     }
                 });
             });
 
             // Bind "Show Details" button click event
-            $(document).on('click', '.show-details', function() {
+            $(document).on('click', '.show-details', function () {
                 var configName = $(this).data('name');
                 $.ajax({
                     url: '/api/list_details',
                     type: 'POST',
                     contentType: 'application/json',
                     data: JSON.stringify({ config_name: configName }),
-                    success: function(data) {
-                        var details = '<h3>Details</h3>';
+                    success: function (data) {
+                        var details = '<h4>Graph</h4>';
+
+                        details += '<img id="svg-graph" src="data:image/svg+xml;base64,' + btoa(data.svg_graph_content) + '" alt="Graph" width="100%" height="100%">';
+                        details += '<button class="btn btn-secondary mt-2" onclick="downloadFile(\'svg\', \'' + configName + '_graph\')">Download Graph</button>';
 
                         details += '<h4>Summary</h4>';
                         details += '<table class="table table-striped" id="csv-summary-table"></table>';
+                        details += '<button class="btn btn-secondary mt-2" onclick="downloadFile(\'csv\', \'' + configName + '_summary\')">Download CSV</button> ';
+                        details += '<button class="btn btn-secondary mt-2" onclick="downloadFile(\'xlsx\', \'' + configName + '_summary\')">Download Excel</button>';
 
                         details += '<h4>Tasks Info</h4>';
                         details += '<table class="table table-striped" id="csv-tasks-table"></table>';
+                        details += '<button class="btn btn-secondary mt-2" onclick="downloadFile(\'csv\', \'' + configName + '_tasks\')">Download CSV</button> ';
+                        details += '<button class="btn btn-secondary mt-2" onclick="downloadFile(\'xlsx\', \'' + configName + '_tasks\')">Download Excel</button>';
 
                         $('#result').html(details);
 
                         // Parse and render CSV Summary data
                         Papa.parse(data.csv_summary_content, {
                             header: true,
-                            complete: function(results) {
+                            complete: function (results) {
                                 var csvTable = '<thead><tr>';
-                                results.meta.fields.forEach(function(field) {
+                                results.meta.fields.forEach(function (field) {
                                     csvTable += '<th>' + field + '</th>';
                                 });
                                 csvTable += '</tr></thead><tbody>';
-                                results.data.forEach(function(row) {
+                                results.data.forEach(function (row) {
                                     csvTable += '<tr>';
-                                    results.meta.fields.forEach(function(field) {
+                                    results.meta.fields.forEach(function (field) {
                                         csvTable += '<td>' + (row[field] !== undefined ? row[field] : '') + '</td>';
                                     });
                                     csvTable += '</tr>';
@@ -129,15 +138,15 @@
                         // Parse and render CSV Tasks data
                         Papa.parse(data.csv_tasks_content, {
                             header: true,
-                            complete: function(results) {
+                            complete: function (results) {
                                 var csvTable = '<thead><tr>';
-                                results.meta.fields.forEach(function(field) {
+                                results.meta.fields.forEach(function (field) {
                                     csvTable += '<th>' + field + '</th>';
                                 });
                                 csvTable += '</tr></thead><tbody>';
-                                results.data.forEach(function(row) {
+                                results.data.forEach(function (row) {
                                     csvTable += '<tr>';
-                                    results.meta.fields.forEach(function(field) {
+                                    results.meta.fields.forEach(function (field) {
                                         csvTable += '<td>' + (row[field] !== undefined ? row[field] : '') + '</td>';
                                     });
                                     csvTable += '</tr>';
@@ -147,14 +156,14 @@
                             }
                         });
                     },
-                    error: function(jqXHR, textStatus, errorThrown) {
+                    error: function (jqXHR, textStatus, errorThrown) {
                         alert('Failed to load details: ' + errorThrown);
                     }
                 });
             });
 
             // Bind "Calculate" button click event
-            $(document).on('click', '.calculate', function() {
+            $(document).on('click', '.calculate', function () {
                 var configName = $(this).data('name');
                 var expectedTime = prompt("Enter expected time for " + configName + ":");
                 if (expectedTime !== null) {
@@ -163,7 +172,7 @@
                         type: 'POST',
                         contentType: 'application/json',
                         data: JSON.stringify({ config_name: configName, expected_time: expectedTime }),
-                        success: function(data) {
+                        success: function (data) {
                             // Check if data is valid before displaying
                             if (data) {
                                 // Convert Expected Probability to percentage
@@ -175,13 +184,19 @@
                                 $('#result').html('<p>Calculation Process finished successfully.</p><p>Please click "Show Details" to get the result.</p>');
                             }
                         },
-                        error: function(jqXHR, textStatus, errorThrown) {
+                        error: function (jqXHR, textStatus, errorThrown) {
                             alert('PERT calculation failed: ' + errorThrown);
                         }
                     });
                 }
             });
         });
+        // Function to download files
+        function downloadFile(fileType, configName) {
+            var url = '/api/download/' + fileType + '/' + configName;
+            window.location.href = url;
+        }
     </script>
 </body>
+
 </html>
