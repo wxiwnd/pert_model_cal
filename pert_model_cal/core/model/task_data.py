@@ -1,3 +1,5 @@
+from typing import Any
+from dataclasses import dataclass
 from .input import TaskInput
 
 
@@ -62,3 +64,11 @@ class TaskList:
             for p in task.task_input.predecessors:
                 if p in self.tasks.keys():
                     self.tasks[p].next_task_label.append(task.task_input.label)
+
+
+@dataclass
+class GraphData:
+    graph: Any  # networkx.DiGraph
+    position_map: dict
+    dashed_edges: list
+    solid_edges: list

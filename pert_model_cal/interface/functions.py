@@ -1,4 +1,6 @@
 import pandas as pd
+import networkx
+import matplotlib.pyplot as plt
 from ..core.model.task_data import Task
 from rich.console import Console
 from rich.table import Table
@@ -100,6 +102,35 @@ class IOUtils:
             console.print(summary_table)
 
         return (tasks_df, summary_df)
+
+    @staticmethod
+    def generate_graph_svg(
+        pert_result: PERTResult, save_path: Path, config_name: str | None = None
+    ):
+        graph = pert_result.graph_data.graph
+        position_map = pert_result.graph_data.position_map
+        dashed_edges = pert_result.graph_data.dashed_edges
+        solid_edges = pert_result.graph_data.solid_edges
+        graph_save_path = save_path / (
+            f"{config_name}_graph.svg" if config_name else "graph.svg"
+        )
+
+        plt.figure(figsize=(20, 10))
+        networkx.draw_networkx_nodes(graph, position_map)
+        networkx.draw_networkx_edges(
+            graph, position_map, edgelist=dashed_edges, style="dashed"
+        )
+        networkx.draw_networkx_edges(
+            graph, position_map, edgelist=solid_edges, style="solid"
+        )
+        networkx.draw_networkx_edge_labels(
+            graph,
+            position_map,
+            edge_labels=networkx.get_edge_attributes(graph, "name"),
+            font_family="sans-serif",
+            font_size=10,
+        )
+        plt.savefig(graph_save_path, format="SVG")
 
     @staticmethod
     def calculate_pert(

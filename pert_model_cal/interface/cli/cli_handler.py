@@ -10,7 +10,7 @@ logger = logging.getLogger(__name__)
 class CLIHandler:
     pert: PERT
     pert_result: PERTResult
-    show_diagram: bool
+    save_graph: bool
     show_table: bool
     table_format: list[str]
     result_dir: Path
@@ -19,11 +19,11 @@ class CLIHandler:
     def init(
         cls,
         json_path: str,
-        show_diagram: bool = True,
+        save_graph: bool = True,
         show_table: bool = True,
         table_format: list[str] = ["csv"],
     ):
-        cls.show_diagram = show_diagram
+        cls.save_graph = save_graph
         cls.show_table = show_table
         cls.table_format = table_format
         task_list = IOUtils.load_tasks_from_json(json_path)
@@ -48,5 +48,5 @@ class CLIHandler:
         )
 
     @classmethod
-    def generate_diagram(cls):
-        raise NotImplementedError("Diagram is not implemented yet")
+    def generate_graph_svg(cls):
+        IOUtils.generate_graph_svg(cls.pert_result, cls.result_dir)
