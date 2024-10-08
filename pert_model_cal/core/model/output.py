@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from .task_data import Task
+from .task_data import Task, GraphData
 
 
 class TaskOut(BaseModel):
@@ -34,3 +34,4 @@ class PERTResult(BaseModel):
     critical_path: list[str]
     expected_duration: int | float
     expected_probability: int | float | None
+    graph_data: GraphData

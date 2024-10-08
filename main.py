@@ -14,9 +14,7 @@ def cli():
 
 @click.command("calculate")
 @click.argument("json_path", type=click.Path(exists=True))
-@click.option(
-    "--show-diagram", is_flag=True, default=False, help="Show the PERT diagram"
-)
+@click.option("--save-graph", is_flag=True, default=False, help="Show the PERT diagram")
 @click.option(
     "--show-table", is_flag=True, default=False, help="Show the task table and summary"
 )
@@ -31,7 +29,7 @@ def cli():
     default=None,
     help="Calculate the probability of finishing tasks less than the expected time",
 )
-def calculate(json_path, show_diagram, show_table, table_format, probability):
+def calculate(json_path, save_graph, show_table, table_format, probability):
     """
     CLI to handle PERT calculations.
     """
@@ -43,7 +41,7 @@ def calculate(json_path, show_diagram, show_table, table_format, probability):
     config_table.add_column("Value", justify="left", style="magenta")
 
     config_table.add_row("Processing File", json_path)
-    config_table.add_row("Show Diagram", str(show_diagram))
+    config_table.add_row("Save Graph", str(save_graph))
     config_table.add_row("Show Table", str(show_table))
     config_table.add_row("Table Format", table_format)
     if probability:
@@ -54,22 +52,19 @@ def calculate(json_path, show_diagram, show_table, table_format, probability):
 
     CLIHandler.init(
         json_path=json_path,
-        show_diagram=show_diagram,
+        save_graph=save_graph,
         show_table=show_table,
         table_format=table_formats,
     )
     CLIHandler.calculate_pert(time=probability)
 
     if show_table:
-        console.print("Generating table...")
+        console.print("Generating Table...")
         CLIHandler.generate_table()
 
-    if show_diagram:
-        click.echo("Generating diagram...")
-        try:
-            CLIHandler.generate_diagram()
-        except NotImplementedError:
-            click.echo("Diagram generation is not yet implemented.")
+    if save_graph:
+        console.print("Generating Graph...")
+        CLIHandler.generate_graph_svg()
 
 
 @click.command("start-server")
